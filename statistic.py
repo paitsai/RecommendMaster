@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from transformers import BertTokenizer, BertModel
 
 # 这是对数据进行预处理
 
@@ -42,12 +43,20 @@ class movies_embedding_layer(nn.modules):
         
         self.movieid=int(info_list[0])
         self.title=info_list[1]
-        self.genres=info_list[2].split("|")
+        self.genres = info_list[2].replace("|", " ")
         
         self.movieid_fc = nn.Linear(1, self.hidden_embedding_size)
-        
-        
+        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        self.bert = BertModel.from_pretrained("bert-base-uncased")
         
     def embed_forward(self):
         
-        pass
+        vectorz_movieid = self.movieid_fc(self.movieid)
+        
+        self.title_token = self.tokenizer(self.title, return_tensors='pt')
+        self.title_embedding = self.bert(**self.title_token)[1]
+        self.genres_token = self.tokenizer(self.genres, return_tensors='pt')
+        self.genres_embedding = self.bert(**self.genres_token)[1]
+        vectorz=torch.cat((vectorz_movieid, self.title_embedding, self.genres_embedding), dim=1)
+        
+        return vectorz
