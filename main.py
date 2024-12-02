@@ -1,4 +1,7 @@
 import torch.nn as nn
+from statistic import userEmbeddingLayer,moviesEmbeddingLayer
+
+
 loss_fn=nn.MSELoss(size_average=None, reduce=None, reduction='mean') 
 
 
@@ -12,6 +15,9 @@ with open("./datasets/ml-1m/movies.new.dat",'r',errors='ignore') as mf:
 with open("./datasets/ml-1m/users.dat",'r',errors='ignore') as uf:
     users=uf.readlines()
 
+uel=userEmbeddingLayer()
+mel=moviesEmbeddingLayer()
+
 for idx in range(len(ratings)):
     userid=int(ratings[idx].split("::")[0])
     movieid=int(ratings[idx].split("::")[1])
@@ -22,7 +28,8 @@ for idx in range(len(ratings)):
     moviestr=movies[movieid-1]
 
 
-    print(f'{idx}: {moviestr}')
 
+
+    print(uel(userstr))
 
 
