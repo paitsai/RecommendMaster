@@ -13,7 +13,7 @@ class userEmbeddingLayer(nn.Module):
         self.age_fc = nn.Linear(1, self.hidden_embedding_size)
         self.occupation_fc = nn.Linear(1, self.hidden_embedding_size)
         self.ll1 = nn.Linear(56, 128)
-        self.softmax1 = nn.Softmax(dim=0)
+        self.softmax1 = nn.ReLU()
         self.ll2 = nn.Linear(128, 32)
         self.softmax2 = nn.Softmax(dim=0)
         
@@ -51,7 +51,7 @@ class moviesEmbeddingLayer(nn.Module):
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         self.bert = BertModel.from_pretrained("bert-base-uncased")
         self.ll1 = nn.Linear(self.hidden_embedding_size + 768 * 2, 128)  # Bert 输出的维度为 768
-        self.softmax1 = nn.Softmax(dim=0)
+        self.softmax1 = nn.ReLU()
         self.ll2 = nn.Linear(128, 32)
         self.softmax2 = nn.Softmax(dim=0)
         
@@ -72,7 +72,7 @@ class moviesEmbeddingLayer(nn.Module):
         self.genres_embedding = self.bert(**self.genres_token).pooler_output  # 使用 pooler_output
         
         # 拼接向量
-        vectorz = torch.cat((vectorz_movieid, self.title_embedding, self.genres_embedding), dim=0)
+        vectorz = torch.cat((vectorz_movieid, self.title_embedding.squeeze(), self.genres_embedding.squeeze()), dim=0)
         
         # 通过全连接层和 Softmax 层
         vectorz = self.softmax1(self.ll1(vectorz))

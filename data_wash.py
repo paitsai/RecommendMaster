@@ -9,7 +9,7 @@ def insert_line(file_name, content):
         tmp = lines[idx]
         # 如果当前行不以行号（即idx+1）开头，插入新的行
         if not tmp.startswith(str(idx + itmp)):
-            new_lines.append(f"{idx + itmp}::{content}\n")  # 插入行号加内容
+            new_lines.append(f"{idx + itmp}::{content}::{content}\n")  # 插入行号加内容
             itmp+=1
         new_lines.append(tmp)  
     
