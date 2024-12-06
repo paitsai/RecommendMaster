@@ -12,6 +12,8 @@ class recommendMaster(nn.Module):
     
     def forward(self,user_info:str,movie_info:str):
         user_emb=self.user_layer(user_info)
+        # print("user_emb.require_grad()=",user_emb.requires_grad)
         movie_emb=self.movie_layer(movie_info)
         likelihood=torch.dot(user_emb,movie_emb)
+        
         return likelihood

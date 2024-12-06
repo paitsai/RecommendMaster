@@ -7,8 +7,8 @@ import torch.optim as optim
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-train_sample=64
-train_turns=200
+train_sample=200
+train_turns=100
 
 loss_fn=nn.MSELoss(size_average=None, reduce=None, reduction='mean') 
 
@@ -32,7 +32,7 @@ with open("./datasets/ml-1m/users.dat",'r',errors='ignore') as uf:
 
 recommend_model=recommendMaster()
 
-optimizer = optim.AdamW(recommend_model.parameters(), lr=0.01)
+optimizer = optim.AdamW(recommend_model.parameters(), lr=0.00001)
 
 
 for ts in range(train_turns):
@@ -43,15 +43,20 @@ for ts in range(train_turns):
     for item in train_list:
 
         likelihood=recommend_model(users[int(ratings[item].split("::")[0])-1],movies[int(ratings[item].split("::")[1])-1])
-        likelihoods.append(likelihood)
+       
+        likelihoods.append(likelihood.unsqueeze(0))
+        
+    
+        
         ground_truth_likelihoods.append(float(ratings[item].split("::")[2])/5)
 
-    likelihoods=torch.tensor(likelihoods)
-    ground_truth_likelihoods=torch.tensor(ground_truth_likelihoods)
+    # print(likelihoods.shape)
+    likelihoods=torch.cat(likelihoods)
+    ground_truth_likelihoods=torch.tensor(ground_truth_likelihoods).to(device)
     
-    total_loss+=loss_fn(likelihood,ground_truth_likelihoods)
+    total_loss+=loss_fn(likelihoods,ground_truth_likelihoods)
     print("Loss Value: ",total_loss.item())
-
+    optimizer.zero_grad()
     total_loss.backward()
     optimizer.step()
     if ts%10==0:
